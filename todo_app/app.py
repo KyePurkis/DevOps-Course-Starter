@@ -15,6 +15,5 @@ def index():
 @app.route('/item', methods=["POST"])
 def create_item():
     item_title = request.form.get('item_title')
-    print(item_title)
     add_item(item_title)
     return redirect('/')
