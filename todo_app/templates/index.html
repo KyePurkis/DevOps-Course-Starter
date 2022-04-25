@@ -18,7 +18,15 @@
       <h2>Items</h2>
       <ul class="list-group mb-4">
         {% for item in items %}
-          <li>{{item.name}}</li>
+          <li class="m-1">
+            {{item.name}}
+            {% if item.status == "To Do" %}
+              <span class="badge badge-warning">To Do</span>
+              <a class="btn btn-outline-primary btn-sm" href="{{url_for('complete_item', id=item.id)}}">Complete</a>
+            {% else %}
+              <span class="badge badge-success">Done</span>
+            {% endif %}
+          </li>
         {% endfor %}
       </ul>
       
