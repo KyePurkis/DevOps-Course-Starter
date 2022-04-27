@@ -1,6 +1,7 @@
 import requests
 import os
 from todo_app.data.item import Item
+from todo_app.data.status import ItemStatus
 
 API_KEY = os.getenv('API_KEY')
 TOKEN = os.getenv('TOKEN')
@@ -16,17 +17,33 @@ def get_items():
     data = []
     for l in lists:
         for card in l['cards']:
-            data.append(Item.from_trello_card(card, l))
+            data.append(Item.from_trello_card(card, list_name_to_status(l['name'])))
+    data.sort(key=lambda x: x.status.value)
     return data
 
-def add_item(name):
+def add_item(name, desc):
     todo_list_id = get_list_id(TODO_LIST_NAME)
-    result = requests.post(f'{BASE_URL}/cards', params={'idList': todo_list_id, 'name': name, 'key': API_KEY, 'token': TOKEN})
+    requests.post(f'{BASE_URL}/cards', params={'idList': todo_list_id, 'name': name, 'desc': desc, 'key': API_KEY, 'token': TOKEN})
+
+
+def doing_item(id):
+    doing_list_id = get_list_id(DOING_LIST_NAME)
+    requests.put(f'{BASE_URL}/cards/{id}', params={'idList': doing_list_id, 'key': API_KEY, 'token': TOKEN})
 
 def complete_item(id):
     done_list_id = get_list_id(DONE_LIST_NAME)
-    result = requests.put(f'{BASE_URL}/cards/{id}', params={'idList': done_list_id, 'key': API_KEY, 'token': TOKEN})
+    requests.put(f'{BASE_URL}/cards/{id}', params={'idList': done_list_id, 'key': API_KEY, 'token': TOKEN})
 
 def get_list_id(name):
     lists = requests.get(f'{BASE_URL}/boards/{BOARD_ID}/lists', params={ 'key': API_KEY, 'token': TOKEN}).json()
     return next(x['id'] for x in lists if x['name'] == name)
+
+def list_name_to_status(name):
+    if name == TODO_LIST_NAME:
+        return ItemStatus.TODO
+    elif name == DOING_LIST_NAME:
+        return ItemStatus.DOING
+    elif name == DONE_LIST_NAME:
+        return ItemStatus.DONE
+    else:
+        print('Found unknown status ', name)

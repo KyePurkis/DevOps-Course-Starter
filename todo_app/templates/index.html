@@ -11,25 +11,45 @@
     <div class="col-md-12">
       <h2>New Item</h2>
       <form action="/item" method="POST">
-        <label for="item_title">Item Title</label>
-        <input type="text" name="item_title" id="item_title" required/>
-        <input type="submit" value="Create" />
+        <div class="form-group">
+          <label for="item_title">Item Title</label>
+          <input class="form-control" type="text" name="item_title" id="item_title" required/>
+        </div>
+        <div class="form-group">
+          <label for="item_desc">Item Description</label>
+          <input class="form-control" type="text" name="item_desc" id="item_desc" required/>
+        </div>
+        <input class='btn btn-primary' type="submit" value="Create" />
       </form>
       <h2>Items</h2>
       <ul class="list-group mb-4">
         {% for item in items %}
-          <li class="m-1">
-            {{item.name}}
-            {% if item.status == "To Do" %}
-              <span class="badge badge-warning">To Do</span>
-              <a class="btn btn-outline-primary btn-sm" href="{{url_for('complete_item', id=item.id)}}">Complete</a>
-            {% else %}
-              <span class="badge badge-success">Done</span>
-            {% endif %}
+          <li class="d-flex justify-content-between flex-row m-1">
+            <div class='d-flex flex-column'>
+              <div>
+                <span class="font-weight-bold">{{item.name}}</span>
+                {% if item.status == ItemStatus.TODO %}
+                  <span class="badge badge-warning">To Do</span>
+                {% elif item.status == ItemStatus.DOING%}
+                  <span class="badge badge-primary">Doing</span>
+                {% else %}
+                  <span class="badge badge-success">Done</span>
+                {% endif %}
+              </div>
+              <div class="pl-2">
+                {{item.desc}}
+              </div>
+            </div>
+            <div>
+              {% if item.status == ItemStatus.TODO %}
+                <a class="btn btn-outline-primary btn-sm" href="{{url_for('doing_item', id=item.id)}}">Doing</a>
+              {% elif item.status == ItemStatus.DOING%}
+                <a class="btn btn-outline-primary btn-sm" href="{{url_for('complete_item', id=item.id)}}">Complete</a>
+              {% endif %}
+            </div>
           </li>
         {% endfor %}
       </ul>
-      
     </div>
   </div>
 {% endblock %}
